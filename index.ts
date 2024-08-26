@@ -18,31 +18,32 @@ const maxDay: number[] = [
 
 export class TimePoint {
     readonly unixEpoch: TimePeriod;
+
     /**
      * Create a TimePoint from a JavaScript Date
-     * @param unixPeriod 
+     * @param unixPeriod
      */
     constructor(date: Date)
     /**
      * Create a TimePoint from a milliseconds elapsed since 1970-01-01
-     * @param unixPeriod 
+     * @param unixPeriod
      */
     constructor(unixMs: number)
     /**
      * Create a TimePoint from a period as elapsed since 1970-01-01
-     * @param unixPeriod 
+     * @param unixPeriod
      */
     constructor(unixPeriod: TimePeriod)
     /**
      * Create a TimePoint from a string
-     * 
+     *
      * This uses Date(string) to parse; be aware of its idiosyncrasies
      * @param dateString
      */
     constructor(dateString: string)
     /**
      * Create a TimePoint from an object description
-     * 
+     *
      * Description members should be as shown on a calendar and clock, ie `{ month: 2, day: 1 }` represents 1st February
      * @param description
      */
@@ -71,29 +72,37 @@ export class TimePoint {
         }
         this.unixEpoch = input;
     }
+
     get asDate(){
         return new Date(this.unixEpoch.asMilliseconds);
     }
+
     isBefore(when: TimePoint | Date) {
         const ms = when instanceof Date ? when.getTime() : when.unixEpoch.asMilliseconds;
         return this.unixEpoch.asMilliseconds < ms;
     }
+
     isAfter(when: TimePoint | Date) {
         const ms = when instanceof Date ? when.getTime() : when.unixEpoch.asMilliseconds;
         return this.unixEpoch.asMilliseconds > ms;
     }
-    add(...periods: (TimePeriod | TimeBreakdown<any>)[]) {
+
+    add(...periods: (TimePeriod | Partial<TimeBreakdown<TimeUnit>>)[]) {
         return new TimePoint(this.unixEpoch.add(...periods));
     }
-    subtract(period: TimePeriod | TimeBreakdown<any>) {
+
+    subtract(period: TimePeriod | Partial<TimeBreakdown<TimeUnit>>) {
         return new TimePoint(this.unixEpoch.subtract(period as any));
     }
+
     difference(time: TimePoint) {
         return time.unixEpoch.subtract(this.unixEpoch);
     }
+
     toJSON(){
         return { unixEpoch: this.unixEpoch.breakdown() };
     }
+
     equals(point: TimePoint){
         return this.unixEpoch.equals(point.unixEpoch);
     }
@@ -124,6 +133,7 @@ type DefaultBreakdownUnits = "days" | "hours" | "minutes" | "seconds" | "millise
 
 export class TimePeriod {
     readonly asMilliseconds: number;
+
     constructor(milliseconds: number)
     constructor(breakdown: Partial<TimeBreakdown<TimeUnit>>)
     constructor(t: number | Partial<TimeBreakdown<TimeUnit>>) {
@@ -136,21 +146,27 @@ export class TimePeriod {
             0
         );
     }
+
     get asSeconds(){
         return this.asMilliseconds / divisors.seconds;
     }
+
     get asMinutes(){
         return this.asMilliseconds / divisors.minutes;
     }
+
     get asHours(){
         return this.asMilliseconds / divisors.hours;
     }
+
     get asDays(){
         return this.asMilliseconds / divisors.days;
     }
+
     get asWeeks(){
         return this.asMilliseconds / divisors.weeks;
     }
+
     add(...periods: (TimePeriod | Partial<TimeBreakdown<TimeUnit>>)[]): TimePeriod {
         return new TimePeriod({
             milliseconds: periods.reduce(
@@ -161,18 +177,19 @@ export class TimePeriod {
             ),
         });
     }
+
     subtract(period: TimePeriod): TimePeriod
-    subtract(breakdown: TimeBreakdown<any>): TimePeriod
-    subtract(period: TimePeriod | TimeBreakdown<any>): TimePeriod {
-        return new TimePeriod({
-            milliseconds: this.asMilliseconds - (
-                period instanceof TimePeriod ? period : new TimePeriod(period)
-            ).asMilliseconds,
-        });
+    subtract(breakdown: Partial<TimeBreakdown<TimeUnit>>): TimePeriod
+    subtract(period: TimePeriod | Partial<TimeBreakdown<TimeUnit>>): TimePeriod {
+        if (!(period instanceof TimePeriod)) period = new TimePeriod(period);
+        return new TimePeriod(this.asMilliseconds - (
+            period instanceof TimePeriod ? period : new TimePeriod(period)
+        ).asMilliseconds);
     }
+
     /**
      * Returns an object that describes this period in desired units
-     * 
+     *
      * eg `{ hours: 5, minutes: 30, seconds: 10 }`
      * @param units List of desired units as strings - eg `["hours", "minutes", "seconds"]`
      * @param options Defaults when units are provided: `{ floatLast: false, includeZero: true }`
@@ -185,7 +202,7 @@ export class TimePeriod {
         : Partial<TimeBreakdown<T>>
     /**
      * Returns an object that describes this period using units days, hours, minutes, seconds and milliseconds
-     * 
+     *
      * eg `{ hours: 5, minutes: 30, seconds: 10 }`
      * @param options Defaults when units are not provided: `{ floatLast: true, includeZero: false }`
      */
@@ -234,19 +251,23 @@ export class TimePeriod {
         });
         return result;
     }
+
     multiply(by: number) {
         return new TimePeriod({
             milliseconds: this.asMilliseconds * by,
-        })
+        });
     }
+
     divide(by: number) {
         return new TimePeriod({
             milliseconds: this.asMilliseconds / by,
-        })
+        });
     }
+
     equals(period: TimePeriod) {
         return period.asMilliseconds == this.asMilliseconds;
     }
+
     toJSON() {
         return { milliseconds: this.asMilliseconds };
     }
@@ -256,6 +277,6 @@ export class TimePeriod {
     static hours(n: number) { return new TimePeriod({hours: n}) }
     static minutes(n: number) { return new TimePeriod({minutes: n}) }
     static seconds(n: number) { return new TimePeriod({seconds: n}) }
-    static milliseconds(n: number) { return new TimePeriod({milliseconds: n}) }
+    static milliseconds(n: number) { return new TimePeriod(n) }
 
 }
