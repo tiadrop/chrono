@@ -2,18 +2,18 @@ import {TimeBreakdown, TimePeriod, TimePoint, TimeUnit} from "../index"
 
 
 describe("TimePoint", () => {
-    const specialTime = new TimePoint("2021-10-31 19:30 GMT");
+    const specialTime = new TimePoint("2020-10-31 19:30 GMT");
 
     describe("construction", () => {
         const baseDescriptor = {
-            year: 2021,
+            year: 2020,
             month: 10,
             day: 31,
             hour: 19,
             minute: 30,
             second: 0,
             timezone: "GMT"
-        }
+        };
 
         it("should instantiate given a Date", () => {
             const now = new Date();
@@ -70,18 +70,18 @@ describe("TimePoint", () => {
             { days: 4 }
         );
         expect(weekAfterSpecial.unixEpoch.asMilliseconds).toBe(
-            new Date("2021-11-07 19:30 GMT").getTime()
+            new Date("2020-11-07 19:30 GMT").getTime()
         );
     });
 
     it("should subtract TimePeriod and TimeBreakdown", () => {
         const weekBeforeSpecialTP = specialTime.subtract(TimePeriod.days(7));
         expect(weekBeforeSpecialTP.unixEpoch.asMilliseconds).toBe(
-            new Date("2021-10-24 19:30 GMT").getTime()
+            new Date("2020-10-24 19:30 GMT").getTime()
         );
         const weekBeforeSpecialBD = specialTime.subtract({weeks: 1});
         expect(weekBeforeSpecialBD.unixEpoch.asMilliseconds).toBe(
-            new Date("2021-10-24 19:30 GMT").getTime()
+            new Date("2020-10-24 19:30 GMT").getTime()
         );
     });
 
@@ -124,6 +124,21 @@ describe("TimePoint", () => {
         const tpNow = TimePoint.now();
         const diff = Math.abs(tpNow.unixEpoch.asMilliseconds - dateNow);
         expect(diff).toBeLessThan(50);
+    });
+
+    it("should instantiate from a unixEpoch breakdown", () => {
+        const now = new Date();
+        const point = new TimePoint(now);
+        const point2 = new TimePoint({
+            unixEpoch: point.unixEpoch.breakdown(),
+        });
+        expect(point.equals(point2)).toBeTruthy();
+        const json = JSON.stringify({
+            time: point,
+        });
+        const parsed = JSON.parse(json);
+        const point3 = new TimePoint(parsed.time);
+        expect(point3.unixEpoch.asMilliseconds).toBe(point.unixEpoch.asMilliseconds);
     });
 
 });
