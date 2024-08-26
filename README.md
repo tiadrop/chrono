@@ -49,7 +49,7 @@ const breakdown = somePeriod.breakdown(["days", "hours"]);
 // retain precision by giving the final unit as float:
 const breakdown = somePeriod.breakdown(["days", "hours"], {
     floatLast: true
-}); // { days: 11, hours: 10.5}
+}); // { days: 11, hours: 10.5 }
 
 // omit zero units
 const breakdown = somePeriod.breakdown(["days", "hours", "minutes"], {
@@ -128,6 +128,11 @@ const lastWeek = TimePoint.now().subtract(TimePeriod.weeks(1));
 
 Use `tp.isBefore()`, `tp.isAfter()` and `tp.equals()` to compare with other points in time, each accepting a `TimePoint | Date` value.
 
-Use `tp.difference(TimePoint)` to determine the period between two times, as a `TimePeriod`.
+Use `tp.difference(TimePoint | Date)` to determine the period between two times, as a `TimePeriod`.
+```ts
+const point = new TimePoint("2020-10-31 17:30 GMT");
+const elapsed = point.difference(TimePoint.now());
+// at time of writing: { days: 1395, hours: 5, minutes: 8, seconds: 37, milliseconds: 203 }
+```
 
 Finally, `TimePoint` serialises into JSON as `{ unixEpoch: tp.breakdown() }` for easy conversion back with, for example, `new TimePoint(data)`.

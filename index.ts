@@ -108,7 +108,8 @@ export class TimePoint {
         return new TimePoint(this.unixEpoch.subtract(period as any));
     }
 
-    difference(time: TimePoint) {
+    difference(time: TimePoint | Date) {
+        if (time instanceof Date) time = new TimePoint(time);
         return time.unixEpoch.subtract(this.unixEpoch);
     }
 
@@ -116,7 +117,8 @@ export class TimePoint {
         return { unixEpoch: this.unixEpoch.breakdown() };
     }
 
-    equals(point: TimePoint){
+    equals(point: TimePoint | Date) {
+        if (point instanceof Date) point = new TimePoint(point);
         return this.unixEpoch.equals(point.unixEpoch);
     }
 
