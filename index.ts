@@ -54,11 +54,11 @@ export class TimePoint {
         if (!(input instanceof TimePeriod)) {
             const { year, month, day, hour, minute, second, timezone } = input;
             if ([year, month, day, hour, minute].some(v => v % 1 > 0)) throw new Error("Invalid time descriptor (non-integral values are only allowed for 'second')");
-            if (month < 1 || month > 12) throw new Error("Invalid month");
-            if (day < 1 || day > maxDay[month - 1]) throw new Error("Invalid day"); //? todo special feb logic?
-            if (hour < 0 || hour >= 24) throw new Error("Invalid hour");
-            if (minute < 0 || minute >= 60) throw new Error("Invalid minute");
-            if (second < 0 || second >= 60) throw new Error("Invalid second");
+            if (month < 1 || month > 12) throw new RangeError("Invalid month");
+            if (day < 1 || day > maxDay[month - 1]) throw new RangeError("Invalid day"); //? todo special feb logic?
+            if (hour < 0 || hour >= 24) throw new RangeError("Invalid hour");
+            if (minute < 0 || minute >= 60) throw new RangeError("Invalid minute");
+            if (second < 0 || second >= 60) throw new RangeError("Invalid second");
             const [
                 year0, month0, day0, hour0, minute0, second0
             ] = [
