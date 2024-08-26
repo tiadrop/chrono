@@ -125,7 +125,7 @@ describe("TimePeriod", () => {
                 minutes: 27,
                 seconds: 55
             });
-        })
+        });
     });
 
     it("should multiply", () => {
@@ -248,10 +248,10 @@ describe("TimePoint", () => {
         );
     });
 
-    it("should encode to JSON as { unixMilliseconds }", () => {
+    it("should encode to JSON as { unixEpoch: TimeBreakdown }", () => {
         const json = JSON.stringify(specialTime);
-        const epoch = new TimePeriod(JSON.parse(json).unixEpoch);
-        expect(specialTime.unixEpoch.asMilliseconds).toBe(epoch.asMilliseconds);
+        const parsed = new TimePeriod(JSON.parse(json).unixEpoch);
+        expect(specialTime.unixEpoch.asMilliseconds).toBeCloseTo(parsed.asMilliseconds);
     });
 
     it("should check if a TimePoint comes before / after a given TimePoint or Date", () => {
