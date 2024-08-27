@@ -67,8 +67,7 @@ const breakdown = somePeriod.breakdown({ includeZero: true });
 
 ![includeZeros: false](./doc/includeZeros-false.png)
 
-When units are not specified, `floatLast` defaults to true and `includeZero` defaults to false and the units days, hours, minutes, seconds and milliseconds are used. When units are specified, `floatLast` defaults to false and `includeZero` defaults to true. The rationale is that the former case, with unspecified units, will therefore provide units as required while specifying units should reasonably guarantee a particular structure.
-
+When units are not specified, `floatLast` defaults to true and `includeZero` defaults to false and the units days, hours, minutes, seconds and milliseconds are used. When units are specified, `floatLast` defaults to false and `includeZero` defaults to true. The rationale is that the former case, with unspecified units, will therefore provide units as required, without loss of information, while specifiying units should by default yield a specific structure.
 
 `TimePeriod` serialises into JSON as `{ milliseconds: number }` for easy conversion back with, for example, `new TimePeriod(data)`.
 
@@ -135,4 +134,4 @@ const elapsed = point.difference(TimePoint.now());
 // at time of writing: { days: 1395, hours: 5, minutes: 8, seconds: 37, milliseconds: 203 }
 ```
 
-Finally, `TimePoint` serialises into JSON as `{ unixEpoch: tp.breakdown() }` for easy conversion back with, for example, `new TimePoint(data)`.
+`TimePoint` serialises into JSON as `{ unixEpoch: tp.breakdown() }` for easy conversion back with, for example, `new TimePoint(data)`. Casting to string gives the same result as casting an equivalent `Date`, to facilitate immediate compatibility.
