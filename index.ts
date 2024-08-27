@@ -113,13 +113,17 @@ export class TimePoint {
         return time.unixEpoch.subtract(this.unixEpoch);
     }
 
-    toJSON(){
-        return { unixEpoch: this.unixEpoch.breakdown() };
-    }
-
     equals(point: TimePoint | Date) {
         if (point instanceof Date) point = new TimePoint(point);
         return this.unixEpoch.equals(point.unixEpoch);
+    }
+
+    toJSON() {
+        return { unixEpoch: this.unixEpoch.breakdown() };
+    }
+
+    toString() {
+        return this.asDate.toString();
     }
 
     static get epochStart() { return new TimePoint(0) }
