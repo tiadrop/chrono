@@ -51,10 +51,10 @@ const breakdown = somePeriod.breakdown(["days", "hours"], {
     floatLast: true
 }); // { days: 11, hours: 10.5 }
 
-// omit zero units
-const breakdown = somePeriod.breakdown(["days", "hours", "minutes"], {
+// omit units with value 0
+const breakdown = TimePeriod.hours(26).breakdown(["days", "hours", "minutes"], {
     includeZero: false,
-}); // { days: 11, hours: 10 }
+}); // { days: 1, hours: 2 }
 
 // without specifying units:
 const breakdown = somePeriod.breakdown();
@@ -67,7 +67,7 @@ const breakdown = somePeriod.breakdown({ includeZero: true });
 
 ![includeZeros: false](./doc/includeZeros-false.png)
 
-When units are not specified, `floatLast` defaults to true and `includeZero` defaults to false and the units days, hours, minutes, seconds and milliseconds are used.
+When units are not specified, `floatLast` defaults to true and `includeZero` defaults to false and the units days, hours, minutes, seconds and milliseconds are used. When units are specified, `floatLast` defaults to false and `includeZero` defaults to true. The rationale is that the former case, with unspecified units, will therefore provide units as required while specifying units should reasonably guarantee a particular structure.
 
 
 `TimePeriod` serialises into JSON as `{ milliseconds: number }` for easy conversion back with, for example, `new TimePeriod(data)`.
