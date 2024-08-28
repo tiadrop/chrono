@@ -16,10 +16,6 @@ type TimePointEpochDescription = {
     unixEpoch: Partial<TimeBreakdown<TimeUnit>>
 };
 
-const maxDay: number[] = [
-    31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-]
-
 export class TimePoint {
     readonly unixEpoch: TimePeriod;
 
@@ -61,26 +57,26 @@ export class TimePoint {
         if (typeof input == "number") input = new TimePeriod(input);
         if (!(input instanceof TimePeriod)) {
             if ("unixEpoch" in input) {
-                input = new TimePeriod(input.unixEpoch)
+                input = new TimePeriod(input.unixEpoch);
             } else {
                 const { year, month, day, hour, minute, second, timezone } = input;
                 if ([year, month, day, hour, minute].some(v => v % 1 > 0)) {
                     throw new Error("Invalid time descriptor (non-integral values are only allowed for 'second')");
                 }
                 if (month < 1 || month > 12) throw new RangeError("Invalid month");
-                if (day < 1 || day > maxDay[month - 1]) throw new RangeError("Invalid day"); //? todo special feb logic?
+                let maxDay = new Date(year, month, 0).getDate();
+                if (day < 1 || day > maxDay) throw new RangeError("Invalid day");
                 if (hour < 0 || hour >= 24) throw new RangeError("Invalid hour");
                 if (minute < 0 || minute >= 60) throw new RangeError("Invalid minute");
                 if (second < 0 || second >= 60) throw new RangeError("Invalid second");
                 const [
-                    year0, month0, day0, hour0, minute0, second0
+                    month0, day0, hour0, minute0, second0
                 ] = [
-                    year, month, day, hour, minute, second
+                    month, day, hour, minute, second
                 ].map(n => (n+'').padStart(2, '0'));
-                const ms = new Date(
-                    `${year0}-${month0}-${day0} ${hour0}:${minute0}:${second0} ${timezone}`
-                ).getTime();
-                input = new TimePeriod(ms);
+                input = new TimePoint(
+                    `${year}-${month0}-${day0} ${hour0}:${minute0}:${second0} ${timezone}`
+                ).unixEpoch;
             }
         }
         this.unixEpoch = input;

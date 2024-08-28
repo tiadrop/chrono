@@ -54,6 +54,37 @@ describe("TimePoint", () => {
             expect(() => new TimePoint({...baseDescriptor, hour: 24})).toThrow();
             expect(() => new TimePoint({...baseDescriptor, minute: 60})).toThrow();
         });
+
+        it("should observe leap years when using descriptors", () => {
+            const descriptor = {
+                ...baseDescriptor,
+                month: 2,
+            };
+            const leap = {
+                ...descriptor,
+                year: 2020,
+            };
+            const nonLeap = {
+                ...descriptor,
+                year: 2021,
+            };
+            expect(new TimePoint({
+                ...leap,
+                day: 28
+            })).toBeInstanceOf(TimePoint);
+            expect(new TimePoint({
+                ...leap,
+                day: 29
+            })).toBeInstanceOf(TimePoint);
+            expect(new TimePoint({
+                ...nonLeap,
+                day: 28
+            })).toBeInstanceOf(TimePoint);
+            expect(() => new TimePoint({
+                ...nonLeap,
+                day: 29
+            })).toThrow(RangeError);
+        });
         
     });
 
