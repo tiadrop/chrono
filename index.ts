@@ -313,7 +313,7 @@ export function wait(period: TimePeriod | number | Partial<TimeBreakdown<TimeUni
     ));
 }
 
-export function atTime(time: TimePoint, func: () => void) {
+export function atTime(time: TimePoint | Date, func: () => void) {
     const diff = TimePoint.now().difference(time);
     if (diff.asSeconds < 30) return setTimeout(func, diff.asMilliseconds);
     setTimeout(
