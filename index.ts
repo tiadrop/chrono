@@ -1,6 +1,7 @@
 export type TimeUnit = "milliseconds" | "seconds" | "minutes" | "hours" | "days" | "weeks" | "microfortnights";
 
 export type TimeBreakdown<T extends TimeUnit> = Readonly<Record<T, number>>;
+type PartialBreakdown<T extends TimeUnit = TimeUnit> = Partial<TimeBreakdown<T>>;
 
 type TimePointDescription = {
     year: number;
@@ -13,7 +14,7 @@ type TimePointDescription = {
 }
 
 type TimePointEpochDescription = {
-    unixEpoch: Partial<TimeBreakdown<TimeUnit>>
+    unixEpoch: PartialBreakdown;
 };
 
 export class TimePoint {
@@ -96,11 +97,11 @@ export class TimePoint {
         return this.unixEpoch.asMilliseconds > ms;
     }
 
-    add(...periods: (TimePeriod | Partial<TimeBreakdown<TimeUnit>>)[]) {
+    add(...periods: (TimePeriod | PartialBreakdown)[]) {
         return new TimePoint(this.unixEpoch.add(...periods));
     }
 
-    subtract(period: TimePeriod | Partial<TimeBreakdown<TimeUnit>>) {
+    subtract(period: TimePeriod | PartialBreakdown) {
         return new TimePoint(this.unixEpoch.subtract(period as any));
     }
 
@@ -150,8 +151,8 @@ export class TimePeriod {
     readonly asMilliseconds: number;
 
     constructor(milliseconds: number)
-    constructor(breakdown: Partial<TimeBreakdown<TimeUnit>>)
-    constructor(t: number | Partial<TimeBreakdown<TimeUnit>>) {
+    constructor(breakdown: PartialBreakdown)
+    constructor(t: number | PartialBreakdown) {
         if (typeof t == "number") {
             this.asMilliseconds = t;
             return;
@@ -182,7 +183,7 @@ export class TimePeriod {
         return this.asMilliseconds / divisors.weeks;
     }
 
-    add(...periods: (TimePeriod | Partial<TimeBreakdown<TimeUnit>>)[]): TimePeriod {
+    add(...periods: (TimePeriod | PartialBreakdown)[]): TimePeriod {
         return new TimePeriod({
             milliseconds: periods.reduce(
                 (sum, p) => sum + (
@@ -194,8 +195,8 @@ export class TimePeriod {
     }
 
     subtract(period: TimePeriod): TimePeriod
-    subtract(breakdown: Partial<TimeBreakdown<TimeUnit>>): TimePeriod
-    subtract(period: TimePeriod | Partial<TimeBreakdown<TimeUnit>>): TimePeriod {
+    subtract(breakdown: PartialBreakdown): TimePeriod
+    subtract(period: TimePeriod | PartialBreakdown): TimePeriod {
         if (!(period instanceof TimePeriod)) period = new TimePeriod(period);
         return new TimePeriod(this.asMilliseconds - (
             period instanceof TimePeriod ? period : new TimePeriod(period)
@@ -214,7 +215,7 @@ export class TimePeriod {
         options?: Partial<BreakdownOptions<Z>>
     ): Z extends true
         ? TimeBreakdown<T>
-        : Partial<TimeBreakdown<T>>
+        : PartialBreakdown<T>
     /**
      * Returns an object that describes this period using units days, hours, minutes, seconds and milliseconds
      *
@@ -225,7 +226,7 @@ export class TimePeriod {
         options?: Partial<BreakdownOptions<Z>>
     ): Z extends true
         ? TimeBreakdown<DefaultBreakdownUnits>
-        : Partial<TimeBreakdown<DefaultBreakdownUnits>>
+        : PartialBreakdown<DefaultBreakdownUnits>
     breakdown(
         units: TimeUnit[] | Partial<BreakdownOptions<boolean>> = {},
         options: Partial<BreakdownOptions<boolean>> = {}
@@ -304,9 +305,9 @@ export class TimePeriod {
 
 export function wait(period: TimePeriod): Promise<void>
 export function wait(milliseconds: number): Promise<void>
-export function wait(breakdown: Partial<TimeBreakdown<TimeUnit>>): Promise<void>
+export function wait(breakdown: PartialBreakdown): Promise<void>
 export function wait(timePoint: TimePoint | Date): Promise<void>
-export function wait(time: TimePeriod | number | Partial<TimeBreakdown<TimeUnit>> | TimePoint | Date) {
+export function wait(time: TimePeriod | number | PartialBreakdown | TimePoint | Date) {
     if (typeof time === "number") time = { milliseconds: time } ;
     return new Promise<void>(resolve => atTime(
         time instanceof TimePoint || time instanceof Date
