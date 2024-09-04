@@ -305,10 +305,14 @@ export class TimePeriod {
 export function wait(period: TimePeriod): Promise<void>
 export function wait(milliseconds: number): Promise<void>
 export function wait(breakdown: Partial<TimeBreakdown<TimeUnit>>): Promise<void>
-export function wait(period: TimePeriod | number | Partial<TimeBreakdown<TimeUnit>>) {
-    if (typeof period === "number") period = { milliseconds: period } ;
+export function wait(timePoint: TimePoint | Date): Promise<void>
+export function wait(time: TimePeriod | number | Partial<TimeBreakdown<TimeUnit>> | TimePoint | Date) {
+    if (time instanceof TimePoint || time instanceof Date) {
+        return wait(TimePoint.now().difference(time));
+    }
+    if (typeof time === "number") time = { milliseconds: time } ;
     return new Promise<void>(resolve => atTime(
-        TimePoint.now().add(period),
+        TimePoint.now().add(time),
         resolve
     ));
 }
