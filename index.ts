@@ -307,12 +307,11 @@ export function wait(milliseconds: number): Promise<void>
 export function wait(breakdown: Partial<TimeBreakdown<TimeUnit>>): Promise<void>
 export function wait(timePoint: TimePoint | Date): Promise<void>
 export function wait(time: TimePeriod | number | Partial<TimeBreakdown<TimeUnit>> | TimePoint | Date) {
-    if (time instanceof TimePoint || time instanceof Date) {
-        return wait(TimePoint.now().difference(time));
-    }
     if (typeof time === "number") time = { milliseconds: time } ;
     return new Promise<void>(resolve => atTime(
-        TimePoint.now().add(time),
+        time instanceof TimePoint || time instanceof Date
+            ? time
+            : TimePoint.now().add(time),
         resolve
     ));
 }
