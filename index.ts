@@ -283,6 +283,12 @@ export class TimePeriod {
         return period.asMilliseconds == this.asMilliseconds;
     }
 
+    abs() {
+        return this.asMilliseconds < 0
+            ? new TimePeriod(Math.abs(this.asMilliseconds))
+            : this;
+    }
+
     toJSON() {
         return { milliseconds: this.asMilliseconds };
     }
@@ -294,4 +300,24 @@ export class TimePeriod {
     static seconds(n: number) { return new TimePeriod({seconds: n}) }
     static milliseconds(n: number) { return new TimePeriod(n) }
 
+}
+
+export function wait(period: TimePeriod): Promise<void>
+export function wait(milliseconds: number): Promise<void>
+export function wait(breakdown: Partial<TimeBreakdown<TimeUnit>>): Promise<void>
+export function wait(period: TimePeriod | number | Partial<TimeBreakdown<TimeUnit>>) {
+    if (typeof period === "number") period = { milliseconds: period } ;
+    return new Promise<void>(resolve => atTime(
+        TimePoint.now().add(period),
+        resolve
+    ));
+}
+
+export function atTime(time: TimePoint, func: () => void) {
+    const diff = TimePoint.now().difference(time);
+    if (diff.asSeconds < 30) return setTimeout(func, diff.asMilliseconds);
+    setTimeout(
+        () => atTime(time, func),
+        30000,
+    );
 }

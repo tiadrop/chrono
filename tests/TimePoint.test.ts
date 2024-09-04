@@ -32,7 +32,7 @@ describe("TimePoint", () => {
             const point = new TimePoint(new TimePeriod({
                 seconds: 1635706800
             }));
-            expect(point.unixEpoch.asMilliseconds).toBe(1635706800000);
+            expect(point.unixEpoch.asHours).toBe(454363);
         });
 
         it("should instantiate given a number of milliseconds", () => {
