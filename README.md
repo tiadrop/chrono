@@ -67,7 +67,7 @@ const breakdown = somePeriod.breakdown({ includeZero: true });
 
 ![includeZeros: false](./doc/includeZeros-false.png)
 
-When units are not specified, `floatLast` defaults to true and `includeZero` defaults to false and the units days, hours, minutes, seconds and milliseconds are used. When units are specified, `floatLast` defaults to false and `includeZero` defaults to true. The rationale is that the former case, with unspecified units, will therefore provide units as required, without loss of information, while specifiying units should by default yield a specific structure.
+When units are not specified, `floatLast` defaults to true and `includeZero` defaults to false and the units days, hours, minutes, seconds and milliseconds are used. When units are specified, `floatLast` defaults to false and `includeZero` defaults to true. The rationale is that the former case, with unspecified units, will therefore provide units as required, without loss of information, while specifiying units should by default yield a specific, predictable structure.
 
 `TimePeriod` serialises into JSON as `{ milliseconds: number }` for easy conversion back with, for example, `new TimePeriod(data)`.
 
@@ -111,7 +111,7 @@ console.log("Time passed since 1970-01-01 GMT:", TimePoint.now().unixEpoch.break
 // at time of writing: { days: 19961, hours: 21, minutes: 16, seconds: 44, milliseconds: 228 }
 ```
 
-`timepoint.add(...period)` accepts a mix of `TimePeriod` and breakdown-like objects:
+`timepoint.add(...period)` accepts a mix of `TimePeriod` and breakdown-like objects and adds the combined total:
 ```ts
 const nextWeek = TimePoint.now().add(
     TimePeriod.days(6),
@@ -135,3 +135,24 @@ const elapsed = point.difference(TimePoint.now());
 ```
 
 `TimePoint` serialises into JSON as `{ unixEpoch: tp.breakdown() }` for easy conversion back with, for example, `new TimePoint(data)`. Casting to string gives the same result as casting an equivalent `Date`, to facilitate immediate compatibility.
+
+## `wait()` & `atTime()`
+
+`wait()` takes either a time period or a point in time and returns a Promise that will be resolved when the specified time has elapsed. This can be used as a `TimePeriod`-compatible equivalent to `setTimeout()` but with the flexibility of a Promise.
+
+```ts
+// wait for a period
+wait({minutes: 1, seconds: 30}).then(() => alert("time up"));
+await wait(oneWeek);
+await wait(10000);
+
+// wait for a specific time
+await wait(new Date("2094-11-16"));
+await wait(new TimePoint("2094-11-16"));
+```
+
+`atTime()` takes a point in time, either as a `Date` or a `TimePoint`, and a callback to run at the given time.
+
+```ts
+atTime(new TimePoint("2099-11-06"), () => releaseHalfLife3());
+```
