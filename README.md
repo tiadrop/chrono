@@ -39,7 +39,7 @@ const breakdown = somePeriod.breakdown(); // { days: 11, hours: 10, minutes: 30 
 
 ### More on `breakdown()`
 
-This function breaks a `TimePeriod` down into meaningful units:
+This method breaks a `TimePeriod` down into meaningful units:
 
 ```ts
 // specify units:
@@ -69,7 +69,9 @@ const breakdown = somePeriod.breakdown({ includeZero: true });
 
 When units are not specified, `floatLast` defaults to true and `includeZero` defaults to false and the units days, hours, minutes, seconds and milliseconds are used. When units are specified, `floatLast` defaults to false and `includeZero` defaults to true. The rationale is that the former case, with unspecified units, will therefore provide units as required, without loss of information, while specifiying units should by default yield a specific, predictable structure.
 
-`TimePeriod` serialises into JSON as `{ milliseconds: number }` for easy conversion back with, for example, `new TimePeriod(data)`.
+The order in which units are given is inconsequential. More significant units will be exhausted first. That is, `t.breakdown(["seconds", "minutes"])` will produce the same result as `t.breakdown(["minutes", "seconds"])`.
+
+`TimePeriod` serialises into JSON as an object that can be converted back with `new TimePeriod(unserialisedValue)`.
 
 ## `TimePoint`
 
@@ -111,12 +113,14 @@ console.log("Time passed since 1970-01-01 GMT:", TimePoint.now().unixEpoch.break
 // at time of writing: { days: 19961, hours: 21, minutes: 16, seconds: 44, milliseconds: 228 }
 ```
 
-`timepoint.add(...period)` accepts a mix of `TimePeriod` and breakdown-like objects and adds the combined total:
+`timepoint.add(...period)` accepts a mix of `TimePeriod` and breakdown-like objects and adds the combined total to create a new `TimePoint`, leaving the original unchanged:
 ```ts
 const nextWeek = TimePoint.now().add(
     TimePeriod.days(6),
     { hours: 24 }
 );
+
+const thirtySecondsLater = point.add({ minutes: .5 });
 ```
 
 `timepoint.subtract(period)` accepts a single value of either of those types.
@@ -131,10 +135,11 @@ Use `tp.difference(TimePoint | Date)` to determine the period between two times,
 ```ts
 const point = new TimePoint("2020-10-31 17:30 GMT");
 const elapsed = point.difference(TimePoint.now());
+log(elapsed.breakdown());
 // at time of writing: { days: 1395, hours: 5, minutes: 8, seconds: 37, milliseconds: 203 }
 ```
 
-`TimePoint` serialises into JSON as `{ unixEpoch: tp.breakdown() }` for easy conversion back with, for example, `new TimePoint(data)`. Casting to string gives the same result as casting an equivalent `Date`, to facilitate immediate compatibility.
+`TimePoint` serialises into JSON as `{ unixEpoch: tp.breakdown() }` for easy conversion back with, for example, `new TimePoint(unserialisedValue)`. Casting to string gives the same result as casting an equivalent `Date`, to ease integration.
 
 ## `wait()` & `atTime()`
 
@@ -144,6 +149,7 @@ const elapsed = point.difference(TimePoint.now());
 // wait for a period
 wait({minutes: 1, seconds: 30}).then(() => alert("time up"));
 await wait(oneWeek);
+// numbers are interpreted as milliseconds
 await wait(10000);
 
 // wait for a specific time
@@ -154,5 +160,6 @@ await wait(new TimePoint("2094-11-16"));
 `atTime()` takes a point in time, either as a `Date` or a `TimePoint`, and a callback to run at the given time.
 
 ```ts
+atTime(appointmentTime.subtract({minutes: 15}), alert("upcoming appointment"));
 atTime(new TimePoint("2099-11-06"), () => releaseHalfLife3());
 ```

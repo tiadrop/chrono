@@ -97,22 +97,57 @@ export class TimePoint {
         return this.unixEpoch.asMilliseconds > ms;
     }
 
+    /**
+     * Creates a new `TimePoint` by adding one or more time periods to an existing one
+     * @param periods 
+     * @returns the new `TimePoint`
+     */
     add(...periods: (TimePeriod | PartialBreakdown)[]) {
         return new TimePoint(this.unixEpoch.add(...periods));
     }
 
+    /**
+     * Creates a new `TimePoint` subtracting a time period from an existing one
+     * @param period
+     * @returns the new `TimePoint`
+     */
     subtract(period: TimePeriod | PartialBreakdown) {
         return new TimePoint(this.unixEpoch.subtract(period as any));
     }
 
+    /**
+     * Computes the difference between two time points.
+     * 
+     * The result represents what would need to be added to this `TimePoint` in order to produce `time`, therefore if `time` represents the earlier time, the result will be a negative period.
+     * @param time
+     * @returns a `TimePeriod` representing the difference
+     */
     difference(time: TimePoint | Date) {
-        if (time instanceof Date) time = new TimePoint(time);
-        return time.unixEpoch.subtract(this.unixEpoch);
+        const timeMs = time instanceof Date
+            ? time.getTime()
+            : time.unixEpoch.asMilliseconds;
+        return new TimePeriod(timeMs - this.unixEpoch.asMilliseconds);
     }
 
     equals(point: TimePoint | Date) {
-        if (point instanceof Date) point = new TimePoint(point);
-        return this.unixEpoch.equals(point.unixEpoch);
+        const pointMs = point instanceof Date
+            ? point.getTime()
+            : point.unixEpoch.asMilliseconds;
+        return this.unixEpoch.asMilliseconds === pointMs;
+    }
+
+    /**
+     * Compares a `TimePoint` with another
+     * @param point 
+     * @returns 0 if the times are identical, -1 if this `TimePoint` occurs before `point`, 1 if this occurs after `point`
+     */
+    compare(point: TimePoint | Date) {
+        const thisMs = this.unixEpoch.asMilliseconds;
+        const pointMs = point instanceof Date
+            ? point.getTime()
+            : point.unixEpoch.asMilliseconds;
+        if (thisMs === pointMs) return 0;
+        return thisMs < pointMs ? -1 : 1;
     }
 
     toJSON() {
@@ -183,6 +218,11 @@ export class TimePeriod {
         return this.asMilliseconds / divisors.weeks;
     }
 
+    /**
+     * Creates a new `TimePeriod` by adding one or more periods to an existing one
+     * @param periods 
+     * @returns the new `TimePeriod`
+     */
     add(...periods: (TimePeriod | PartialBreakdown)[]): TimePeriod {
         return new TimePeriod({
             milliseconds: periods.reduce(
@@ -248,6 +288,8 @@ export class TimePeriod {
             };
             units = ["days", "hours", "minutes", "seconds", "milliseconds"];
         }
+
+        units = [...units].sort((a, b) => divisors[b] - divisors[a]);
 
         const {floatLast, includeZero} = fullOptions;
         let remaining = this.asMilliseconds;
