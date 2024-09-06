@@ -85,6 +85,13 @@ describe("TimePeriod", () => {
             });
         });
 
+        it("should always break into most significant units first, regardless of array order", () => {
+            expect(period.breakdown(["minutes", "days"])).toStrictEqual({
+                days: 0,
+                minutes: 90
+            });
+        })
+
     });
 
     describe("add()", () => {
@@ -145,6 +152,14 @@ describe("TimePeriod", () => {
             minutes: 30,
             milliseconds: 1,
         }).equals(hourAndHalf)).toBeFalsy();
+        expect(new TimePeriod({
+            weeks: 1,
+            days: 6,
+            hours: 23,
+            minutes: 59,
+            seconds: 59,
+            milliseconds: 1000,
+        }).equals(TimePeriod.weeks(2))).toBeTruthy();
     });
 
     it("should encode to JSON as { milliseconds }", () => {
