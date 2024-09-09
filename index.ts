@@ -99,7 +99,7 @@ export class TimePoint {
 
     /**
      * Creates a new `TimePoint` by adding one or more time periods to an existing one
-     * @param periods 
+     * @param periods
      * @returns the new `TimePoint`
      */
     add(...periods: (TimePeriod | PartialBreakdown)[]) {
@@ -117,7 +117,7 @@ export class TimePoint {
 
     /**
      * Computes the difference between two time points.
-     * 
+     *
      * The result represents what would need to be added to this `TimePoint` in order to produce `time`, therefore if `time` represents the earlier time, the result will be a negative period.
      * @param time
      * @returns a `TimePeriod` representing the difference
@@ -138,7 +138,7 @@ export class TimePoint {
 
     /**
      * Compares a `TimePoint` with another
-     * @param point 
+     * @param point
      * @returns 0 if the times are identical, -1 if this `TimePoint` occurs before `point`, 1 if this occurs after `point`
      */
     compare(point: TimePoint | Date) {
@@ -220,7 +220,7 @@ export class TimePeriod {
 
     /**
      * Creates a new `TimePeriod` by adding one or more periods to an existing one
-     * @param periods 
+     * @param periods
      * @returns the new `TimePeriod`
      */
     add(...periods: (TimePeriod | PartialBreakdown)[]): TimePeriod {
@@ -238,9 +238,7 @@ export class TimePeriod {
     subtract(breakdown: PartialBreakdown): TimePeriod
     subtract(period: TimePeriod | PartialBreakdown): TimePeriod {
         if (!(period instanceof TimePeriod)) period = new TimePeriod(period);
-        return new TimePeriod(this.asMilliseconds - (
-            period instanceof TimePeriod ? period : new TimePeriod(period)
-        ).asMilliseconds);
+        return new TimePeriod(this.asMilliseconds - period.asMilliseconds);
     }
 
     /**
@@ -361,7 +359,7 @@ export function wait(time: TimePeriod | number | PartialBreakdown | TimePoint | 
 
 export function atTime(time: TimePoint | Date, func: () => void) {
     const diff = TimePoint.now().difference(time);
-    if (diff.asSeconds < 30) return setTimeout(func, diff.asMilliseconds);
+    if (diff.asSeconds < 30) return void setTimeout(func, diff.asMilliseconds);
     setTimeout(
         () => atTime(time, func),
         30000,
