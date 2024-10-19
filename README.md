@@ -160,6 +160,6 @@ await wait(new TimePoint("2094-11-16"));
 `atTime()` takes a point in time, either as a `Date` or a `TimePoint`, and a callback to run at the given time.
 
 ```ts
-atTime(appointmentTime.subtract({minutes: 15}), alert("upcoming appointment"));
+atTime(appointmentTime.subtract({minutes: 15}), () => alert("upcoming appointment"));
 atTime(new TimePoint("2099-11-06"), () => releaseHalfLife3());
 ```
